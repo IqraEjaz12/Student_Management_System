@@ -17,7 +17,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_SESSION['user_id'] = $row['id'];
             $_SESSION['username'] = $row['username'];
             $_SESSION['role'] = $row['role'];
-            header("Location: dashboard.php");
+
+            // Redirect based on role
+            switch ($row['role']) {
+                case 'admin':
+                    header("Location: dashboard.php");
+                    break;
+                case 'teacher':
+                    header("Location: teacher_dashboard.php");
+                    break;
+                case 'student':
+                    header("Location: student_dashboard.php");
+                    break;
+                default:
+                    header("Location: dashboard.php");
+            }
             exit;
         }
     }

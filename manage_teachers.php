@@ -16,13 +16,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $email = mysqli_real_escape_string($conn, $_POST['email']);
         $phone = mysqli_real_escape_string($conn, $_POST['phone']);
         $subject = mysqli_real_escape_string($conn, $_POST['subject']);
+        $photo = '';
+
+        if (isset($_FILES['photo']) && $_FILES['photo']['error'] == 0) {
+            $target_dir = 'uploads/';
+            if (!is_dir($target_dir)) mkdir($target_dir, 0777, true);
+            $photo = $target_dir . basename($_FILES['photo']['name']);
+            move_uploaded_file($_FILES['photo']['tmp_name'], $photo);
+        }
 
         if ($action == 'add') {
-            $sql = "INSERT INTO teachers (name, email, phone, subject)
-                    VALUES ('$name', '$email', '$phone', '$subject')";
+            $sql = "INSERT INTO teachers (name, email, phone, subject, photo)
+                    VALUES ('$name', '$email', '$phone', '$subject', '$photo')";
         } else {
             $id = intval($_POST['id']);
-            $sql = "UPDATE teachers SET name='$name', email='$email', phone='$phone', subject='$subject' WHERE id=$id";
+            $sql = "UPDATE teachers SET name='$name', email='$email', phone='$phone', subject='$subject'";
+            if ($photo !== '') {
+                $sql .= ", photo='$photo'";
+            }
+            $sql .= " WHERE id=$id";
         }
         mysqli_query($conn, $sql);
         header("Location: manage_teachers.php");
@@ -44,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <!-- Add/Edit Form -->
     <div class="form-card">
         <h3 id="form-title">Add New Teacher</h3>
-        <form action="manage_teachers.php" method="POST">
+        <form action="manage_teachers.php" method="POST" enctype="multipart/form-data">
             <input type="hidden" name="id" id="teacher_id">
             <input type="hidden" name="action" id="form_action" value="add">
 
@@ -55,6 +67,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="form-row">
                 <input type="text" name="phone" id="phone" placeholder="Phone Number">
                 <input type="text" name="subject" id="subject" placeholder="Subject" required>
+            </div>
+            <div class="form-row">
+                <label for="photo" style="display:block; margin-bottom:5px; font-weight:500;">Profile Photo</label>
+                <input type="file" name="photo" id="photo" accept="image/*" required>
             </div>
 
             <div class="btn-row">

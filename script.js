@@ -9,22 +9,6 @@ function searchStudents() {
     });
 }
 
-// Edit button pe click hone par form mein data aajata hai
-function fillForm(id, name, roll_no, cls, email, phone) {
-    document.getElementById("student_id").value    = id;
-    document.getElementById("name").value          = name;
-    document.getElementById("roll_no").value       = roll_no;
-    document.getElementById("class").value         = cls;
-    document.getElementById("email").value         = email;
-    document.getElementById("phone").value         = phone;
-    document.getElementById("form_action").value   = "update";
-    document.getElementById("submit-btn").textContent = "Update Student";
-    document.getElementById("form-title").textContent = "Edit Student";
-
-    // Page ke upar scroll karo
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
 // Form clear karna
 function clearForm() {
     document.getElementById("student_id").value    = "";
@@ -33,6 +17,9 @@ function clearForm() {
     document.getElementById("class").value         = "";
     document.getElementById("email").value         = "";
     document.getElementById("phone").value         = "";
+    document.getElementById("date_of_birth").value = "";
+    document.getElementById("address").value       = "";
+    document.getElementById("photo").value         = "";
     document.getElementById("form_action").value   = "add";
     document.getElementById("submit-btn").textContent = "Add Student";
     document.getElementById("form-title").textContent = "Add New Student";

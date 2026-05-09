@@ -37,6 +37,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             move_uploaded_file($_FILES['photo']['tmp_name'], $photo);
         }
 
+        if ($action == 'add' && empty($photo)) {
+            header("Location: manage_students.php?error=photo_required");
+            exit;
+        }
+
         if ($action == 'add') {
             $sql = "INSERT INTO students (name, roll_no, class, email, phone, date_of_birth, address, photo)
                     VALUES ('$name', '$roll_no', '$class', '$email', '$phone', '$date_of_birth', '$address', '$photo')";
@@ -83,7 +88,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <input type="date" name="date_of_birth" id="date_of_birth" value="<?php echo $edit_student['date_of_birth'] ?? ''; ?>">
             </div>
             <textarea name="address" id="address" placeholder="Address" rows="3"><?php echo htmlspecialchars($edit_student['address'] ?? ''); ?></textarea>
-            <input type="file" name="photo" id="photo" accept="image/*">
+            <div class="form-row">
+                <label for="photo" style="display: block; margin-bottom: 5px; font-weight: 500;">Profile Photo</label>
+                <?php if ($edit_student && ($edit_student['photo'] ?? '')): ?>
+                    <div style="margin-bottom: 10px;">
+                        <img src="<?php echo $edit_student['photo']; ?>" width="100" height="100" style="border-radius: 8px; border: 1px solid #e2e8f0;">
+                        <p style="font-size: 12px; color: #718096; margin-top: 5px;">Current photo - upload new to replace</p>
+                    </div>
+                <?php endif; ?>
+                <input type="file" name="photo" id="photo" accept="image/*" style="margin-top: 0;" <?php echo $edit_student ? '' : 'required'; ?>>
+            </div>
 
             <div class="btn-row">
                 <button type="submit" class="btn-primary" id="submit-btn"><?php echo $edit_student ? 'Update Student' : 'Add Student'; ?></button>
@@ -114,15 +128,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $result = mysqli_query($conn, "SELECT * FROM students ORDER BY id DESC");
                 while ($row = mysqli_fetch_assoc($result)) {
                     $id = $row['id'];
-                    $photo = $row['photo'] ? "<img src='{$row['photo']}' width='50' height='50' style='border-radius:50%;'>" : "No Photo";
+                    $photo = ($row['photo'] ?? '') ? "<img src='{$row['photo']}' width='50' height='50' style='border-radius:50%;'>" : "No Photo";
                     echo "<tr>
                         <td>{$row['id']}</td>
                         <td>$photo</td>
                         <td>" . htmlspecialchars($row['name']) . "</td>
                         <td>" . htmlspecialchars($row['roll_no']) . "</td>
-                        <td>" . htmlspecialchars($row['class']) . "</td>
-                        <td>" . htmlspecialchars($row['email']) . "</td>
-                        <td>" . htmlspecialchars($row['phone']) . "</td>
+                        <td>" . htmlspecialchars($row['class'] ?? '') . "</td>
+                        <td>" . htmlspecialchars($row['email'] ?? '') . "</td>
+                        <td>" . htmlspecialchars($row['phone'] ?? '') . "</td>
                         <td>
                             <button class='btn-edit' onclick='editStudent({$row['id']})'>Edit</button>
                             <button class='btn-delete' onclick='deleteStudent({$row['id']})'>Delete</button>

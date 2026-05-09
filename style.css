@@ -196,6 +196,22 @@ input[type="file"] {
     padding: 0;
 }
 
+/* File Input Styling */
+.form-row label {
+    font-weight: 500;
+    color: #2d3748;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.form-row input[type="file"] {
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 8px 12px;
+    background: white;
+    cursor: pointer;
+}
+
 /* Buttons */
 .btn-row {
     display: flex;
@@ -472,6 +488,60 @@ tbody tr:hover { background: #f7fafc; }
     display: flex;
     gap: 10px;
     justify-content: center;
+}
+
+/* Dashboard Grid */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.dashboard-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.dashboard-card h3 {
+    margin-bottom: 15px;
+    color: #2d3748;
+}
+
+/* Modal Styles */
+.modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 400px;
+    border-radius: 8px;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: black;
 }
 
 /* Status Classes */

@@ -36,11 +36,11 @@ $page_title = 'Student Report';
                     echo "<td>" . $row['id'] . "</td>";
                     echo "<td>" . htmlspecialchars($row['name']) . "</td>";
                     echo "<td>" . htmlspecialchars($row['roll_no']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['class']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['email']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['phone']) . "</td>";
-                    echo "<td>" . $row['date_of_birth'] . "</td>";
-                    echo "<td>" . htmlspecialchars($row['address']) . "</td>";
+                    echo "<td>" . htmlspecialchars($row['class'] ?? '') . "</td>";
+                    echo "<td>" . htmlspecialchars($row['email'] ?? '') . "</td>";
+                    echo "<td>" . htmlspecialchars($row['phone'] ?? '') . "</td>";
+                    echo "<td>" . ($row['date_of_birth'] ?? '') . "</td>";
+                    echo "<td>" . htmlspecialchars($row['address'] ?? '') . "</td>";
                     echo "</tr>";
                 }
                 ?>

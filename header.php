@@ -20,15 +20,43 @@
     <div class="main-content">
         <div class="sidebar">
             <ul>
-                <li><a href="dashboard.php">Dashboard</a></li>
-                <li><a href="manage_students.php">Students</a></li>
-                <li><a href="manage_teachers.php">Teachers</a></li>
-                <li><a href="manage_courses.php">Courses</a></li>
-                <li><a href="enroll_students.php">Enrollments</a></li>
-                <li><a href="grades.php">Grades</a></li>
-                <li><a href="attendance.php">Attendance</a></li>
-                <li><a href="fees.php">Fees</a></li>
-                <li><a href="reports.php">Reports</a></li>
+                <?php
+                $role = $_SESSION['role'] ?? 'admin';
+                switch ($role) {
+                    case 'admin':
+                        ?>
+                        <li><a href="dashboard.php">Dashboard</a></li>
+                        <li><a href="manage_students.php">Students</a></li>
+                        <li><a href="manage_teachers.php">Teachers</a></li>
+                        <li><a href="manage_courses.php">Courses</a></li>
+                        <li><a href="enroll_students.php">Enrollments</a></li>
+                        <li><a href="grades.php">Grades</a></li>
+                        <li><a href="attendance.php">Attendance</a></li>
+                        <li><a href="fees.php">Fees</a></li>
+                        <li><a href="reports.php">Reports</a></li>
+                        <li><a href="manage_users.php">User Management</a></li>
+                        <?php
+                        break;
+                    case 'teacher':
+                        ?>
+                        <li><a href="teacher_dashboard.php">Dashboard</a></li>
+                        <li><a href="my_courses.php">My Courses</a></li>
+                        <li><a href="manage_grades.php">Manage Grades</a></li>
+                        <li><a href="take_attendance.php">Take Attendance</a></li>
+                        <li><a href="teacher_reports.php">My Reports</a></li>
+                        <?php
+                        break;
+                    case 'student':
+                        ?>
+                        <li><a href="student_dashboard.php">Dashboard</a></li>
+                        <li><a href="my_grades.php">My Grades</a></li>
+                        <li><a href="my_attendance.php">My Attendance</a></li>
+                        <li><a href="my_fees.php">My Fees</a></li>
+                        <li><a href="my_courses.php">My Courses</a></li>
+                        <?php
+                        break;
+                }
+                ?>
             </ul>
         </div>
         <div class="content">
