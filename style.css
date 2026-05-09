@@ -436,6 +436,44 @@ tbody tr:hover { background: #f7fafc; }
     margin-bottom: 15px;
 }
 
+/* Table Styles */
+.table-container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow-x: auto;
+    margin-bottom: 20px;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.data-table th {
+    background: #f7fafc;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.data-table tr:hover {
+    background: #f7fafc;
+}
+
+/* Report Actions */
+.report-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
 /* Status Classes */
 .present { color: #38a169; }
 .absent { color: #e53e3e; }

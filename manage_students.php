@@ -7,6 +7,14 @@ if (!isset($_SESSION['user_id'])) {
 include 'db.php';
 $page_title = 'Manage Students';
 
+// Handle edit request
+$edit_student = null;
+if (isset($_GET['edit'])) {
+    $edit_id = intval($_GET['edit']);
+    $result = mysqli_query($conn, "SELECT * FROM students WHERE id = $edit_id");
+    $edit_student = mysqli_fetch_assoc($result);
+}
+
 // Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $action = $_POST['action'] ?? '';
@@ -57,28 +65,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <!-- Add/Edit Form -->
     <div class="form-card">
-        <h3 id="form-title">Add New Student</h3>
+        <h3 id="form-title"><?php echo $edit_student ? 'Edit Student' : 'Add New Student'; ?></h3>
         <form action="manage_students.php" method="POST" enctype="multipart/form-data">
-            <input type="hidden" name="id" id="student_id">
-            <input type="hidden" name="action" id="form_action" value="add">
+            <input type="hidden" name="id" id="student_id" value="<?php echo $edit_student['id'] ?? ''; ?>">
+            <input type="hidden" name="action" id="form_action" value="<?php echo $edit_student ? 'update' : 'add'; ?>">
 
             <div class="form-row">
-                <input type="text" name="name" id="name" placeholder="Full Name" required>
-                <input type="text" name="roll_no" id="roll_no" placeholder="Roll Number" required>
+                <input type="text" name="name" id="name" placeholder="Full Name" value="<?php echo htmlspecialchars($edit_student['name'] ?? ''); ?>" required>
+                <input type="text" name="roll_no" id="roll_no" placeholder="Roll Number" value="<?php echo htmlspecialchars($edit_student['roll_no'] ?? ''); ?>" required>
             </div>
             <div class="form-row">
-                <input type="text" name="class" id="class" placeholder="Class">
-                <input type="email" name="email" id="email" placeholder="Email Address">
+                <input type="text" name="class" id="class" placeholder="Class" value="<?php echo htmlspecialchars($edit_student['class'] ?? ''); ?>">
+                <input type="email" name="email" id="email" placeholder="Email Address" value="<?php echo htmlspecialchars($edit_student['email'] ?? ''); ?>">
             </div>
             <div class="form-row">
-                <input type="text" name="phone" id="phone" placeholder="Phone Number">
-                <input type="date" name="date_of_birth" id="date_of_birth" placeholder="Date of Birth">
+                <input type="text" name="phone" id="phone" placeholder="Phone Number" value="<?php echo htmlspecialchars($edit_student['phone'] ?? ''); ?>">
+                <input type="date" name="date_of_birth" id="date_of_birth" value="<?php echo $edit_student['date_of_birth'] ?? ''; ?>">
             </div>
-            <textarea name="address" id="address" placeholder="Address" rows="3"></textarea>
+            <textarea name="address" id="address" placeholder="Address" rows="3"><?php echo htmlspecialchars($edit_student['address'] ?? ''); ?></textarea>
             <input type="file" name="photo" id="photo" accept="image/*">
 
             <div class="btn-row">
-                <button type="submit" class="btn-primary" id="submit-btn">Add Student</button>
+                <button type="submit" class="btn-primary" id="submit-btn"><?php echo $edit_student ? 'Update Student' : 'Add Student'; ?></button>
                 <button type="button" class="btn-secondary" onclick="clearForm()">Clear</button>
             </div>
         </form>

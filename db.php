@@ -4,10 +4,17 @@ $user     = "root";
 $password = "";        // XAMPP ka default password blank hota hai
 $database = "student_db";
 
-$conn = mysqli_connect($host, $user, $password, $database);
-
+$conn = mysqli_connect($host, $user, $password);
 if (!$conn) {
     die("Connection failed: " . mysqli_connect_error());
+}
+
+$db_selected = mysqli_select_db($conn, $database);
+if (!$db_selected) {
+    if (!mysqli_query($conn, "CREATE DATABASE IF NOT EXISTS $database CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")) {
+        die("Database creation failed: " . mysqli_error($conn));
+    }
+    mysqli_select_db($conn, $database);
 }
 
 // Create tables if they don't exist
@@ -89,6 +96,13 @@ $tables = [
 
 foreach ($tables as $sql) {
     mysqli_query($conn, $sql);
+}
+
+// Insert default admin user if not exists
+$admin_check = mysqli_query($conn, "SELECT id FROM users WHERE username='admin'");
+if (mysqli_num_rows($admin_check) == 0) {
+    $hashed_password = password_hash('admin123', PASSWORD_DEFAULT);
+    mysqli_query($conn, "INSERT INTO users (username, password, role) VALUES ('admin', '$hashed_password', 'admin')");
 }
 
 // Insert default admin user if not exists
