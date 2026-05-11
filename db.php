@@ -117,6 +117,21 @@ if (mysqli_num_rows($check_student_user_id) == 0) {
     mysqli_query($conn, "ALTER TABLE students ADD COLUMN user_id INT UNIQUE NULL");
 }
 
+$check_student_dob = mysqli_query($conn, "SHOW COLUMNS FROM students LIKE 'date_of_birth'");
+if (mysqli_num_rows($check_student_dob) == 0) {
+    mysqli_query($conn, "ALTER TABLE students ADD COLUMN date_of_birth DATE NULL AFTER phone");
+}
+
+$check_student_address = mysqli_query($conn, "SHOW COLUMNS FROM students LIKE 'address'");
+if (mysqli_num_rows($check_student_address) == 0) {
+    mysqli_query($conn, "ALTER TABLE students ADD COLUMN address TEXT NULL AFTER date_of_birth");
+}
+
+$check_student_photo = mysqli_query($conn, "SHOW COLUMNS FROM students LIKE 'photo'");
+if (mysqli_num_rows($check_student_photo) == 0) {
+    mysqli_query($conn, "ALTER TABLE students ADD COLUMN photo VARCHAR(255) NULL AFTER address");
+}
+
 // Insert default admin user if not exists
 $admin_check = mysqli_query($conn, "SELECT id FROM users WHERE username='admin'");
 if (mysqli_num_rows($admin_check) == 0) {

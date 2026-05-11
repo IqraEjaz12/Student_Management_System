@@ -64,11 +64,15 @@ while ($fee = mysqli_fetch_assoc($fees_result)) {
                 <?php
                 mysqli_data_seek($fees_result, 0);
                 while ($fee = mysqli_fetch_assoc($fees_result)) {
+                    $is_overdue = (!$fee['paid'] && strtotime($fee['due_date']) < time());
+                    $due_date_display = $is_overdue ? "<span class='overdue'>" . $fee['due_date'] . " (Overdue)</span>" : $fee['due_date'];
+                    $paid_date_display = $fee['paid_date'] ? date('M d, Y', strtotime($fee['paid_date'])) : '-';
+
                     echo "<tr>";
                     echo "<td>$" . number_format($fee['amount'], 2) . "</td>";
-                    echo "<td>" . $fee['due_date'] . "</td>";
+                    echo "<td>$due_date_display</td>";
                     echo "<td class='" . ($fee['paid'] ? 'paid' : 'unpaid') . "'>" . ($fee['paid'] ? 'Paid' : 'Unpaid') . "</td>";
-                    echo "<td>" . ($fee['paid_date'] ?? '-') . "</td>";
+                    echo "<td>$paid_date_display</td>";
                     echo "</tr>";
                 }
                 ?>

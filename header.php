@@ -34,7 +34,6 @@
                         <li><a href="attendance.php">Attendance</a></li>
                         <li><a href="fees.php">Fees</a></li>
                         <li><a href="reports.php">Reports</a></li>
-                        <li><a href="manage_users.php">User Management</a></li>
                         <?php
                         break;
                     case 'teacher':

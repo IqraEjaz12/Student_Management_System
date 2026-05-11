@@ -24,6 +24,7 @@ A comprehensive web-based student management system built with PHP, MySQL, and J
 3. Start Apache and MySQL in XAMPP
 4. Open `http://localhost/Student_Management_System` in browser
 5. The database and tables will be created automatically
+6. Run `test.php` to verify everything is working: `http://localhost/Student_Management_System/test.php`
 
 ## Default Login Credentials
 

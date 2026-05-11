@@ -19,9 +19,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_fee'])) {
 }
 
 // Handle payment
-if (isset($_GET['pay'])) {
-    $fee_id = intval($_GET['pay']);
-    mysqli_query($conn, "UPDATE fees SET paid=TRUE, paid_date=CURDATE() WHERE id=$fee_id");
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['mark_paid'])) {
+    $fee_id = intval($_POST['fee_id']);
+    $paid_date = $_POST['paid_date'];
+    mysqli_query($conn, "UPDATE fees SET paid=TRUE, paid_date='$paid_date' WHERE id=$fee_id");
     header("Location: fees.php");
     exit;
 }
@@ -78,14 +79,24 @@ if (isset($_GET['pay'])) {
                 while ($row = mysqli_fetch_assoc($result)) {
                     $status = $row['paid'] ? 'Paid' : 'Unpaid';
                     $status_class = $row['paid'] ? 'paid' : 'unpaid';
-                    $paid_date = $row['paid_date'] ? $row['paid_date'] : '-';
-                    $action = $row['paid'] ? '-' : "<a href='fees.php?pay={$row['id']}' onclick=\"return confirm('Mark as paid?')\"><button class='btn-primary'>Mark Paid</button></a>";
+                    $paid_date = $row['paid_date'] ? date('M d, Y', strtotime($row['paid_date'])) : '-';
+                    $action = $row['paid'] ? '-' : "
+                        <form method='POST' style='display: inline;'>
+                            <input type='hidden' name='fee_id' value='{$row['id']}'>
+                            <input type='date' name='paid_date' required style='margin-right: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;'>
+                            <button type='submit' name='mark_paid' class='btn-primary' onclick=\"return confirm('Mark this fee as paid?')\">Mark Paid</button>
+                        </form>
+                    ";
+
+                    // Check if overdue
+                    $is_overdue = (!$row['paid'] && strtotime($row['due_date']) < time());
+                    $due_date_display = $is_overdue ? "<span class='overdue'>" . htmlspecialchars($row['due_date']) . " (Overdue)</span>" : htmlspecialchars($row['due_date']);
 
                     echo "<tr>
                         <td>" . htmlspecialchars($row['student_name']) . "</td>
                         <td>" . htmlspecialchars($row['roll_no']) . "</td>
                         <td>$" . number_format($row['amount'], 2) . "</td>
-                        <td>" . htmlspecialchars($row['due_date']) . "</td>
+                        <td>$due_date_display</td>
                         <td class='$status_class'>$status</td>
                         <td>$paid_date</td>
                         <td>$action</td>

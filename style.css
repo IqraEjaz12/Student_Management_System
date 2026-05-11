@@ -550,6 +550,7 @@ tbody tr:hover { background: #f7fafc; }
 .late { color: #ed8936; }
 .paid { color: #38a169; }
 .unpaid { color: #e53e3e; }
+.overdue { color: #e53e3e; font-weight: bold; }
 
 /* Footer */
 .footer {
