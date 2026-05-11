@@ -7,6 +7,9 @@ if (!isset($_SESSION['user_id'])) {
 include 'db.php';
 $page_title = 'Manage Students';
 
+$error_message = '';
+$form_data = [];
+
 // Handle edit request
 $edit_student = null;
 if (isset($_GET['edit'])) {
@@ -15,9 +18,14 @@ if (isset($_GET['edit'])) {
     $edit_student = mysqli_fetch_assoc($result);
 }
 
+if (isset($_GET['error']) && $_GET['error'] === 'photo_required') {
+    $error_message = 'Please upload a profile photo when adding a new student.';
+}
+
 // Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $action = $_POST['action'] ?? '';
+    $form_data = $_POST;
 
     if ($action == 'add' || $action == 'update') {
         $name = mysqli_real_escape_string($conn, $_POST['name']);
@@ -34,26 +42,41 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $target_dir = "uploads/";
             if (!is_dir($target_dir)) mkdir($target_dir, 0777, true);
             $photo = $target_dir . basename($_FILES['photo']['name']);
-            move_uploaded_file($_FILES['photo']['tmp_name'], $photo);
+            if (!move_uploaded_file($_FILES['photo']['tmp_name'], $photo)) {
+                $error_message = 'Unable to upload the photo. Please try again.';
+            }
         }
 
         if ($action == 'add' && empty($photo)) {
-            header("Location: manage_students.php?error=photo_required");
-            exit;
+            $error_message = 'Please upload a profile photo when adding a new student.';
         }
 
-        if ($action == 'add') {
-            $sql = "INSERT INTO students (name, roll_no, class, email, phone, date_of_birth, address, photo)
-                    VALUES ('$name', '$roll_no', '$class', '$email', '$phone', '$date_of_birth', '$address', '$photo')";
-        } else {
-            $id = intval($_POST['id']);
-            $sql = "UPDATE students SET name='$name', roll_no='$roll_no', class='$class',
-                    email='$email', phone='$phone', date_of_birth='$date_of_birth',
-                    address='$address'" . ($photo ? ", photo='$photo'" : "") . " WHERE id=$id";
+        $student_id = $action === 'update' ? intval($_POST['id']) : 0;
+        if (!$error_message) {
+            $check_sql = "SELECT id FROM students WHERE roll_no = '$roll_no'" . ($action === 'update' ? " AND id <> $student_id" : "");
+            $check_result = mysqli_query($conn, $check_sql);
+            if ($check_result && mysqli_num_rows($check_result) > 0) {
+                $error_message = 'This roll number is already in use. Please enter a unique roll number.';
+            }
         }
-        mysqli_query($conn, $sql);
-        header("Location: manage_students.php");
-        exit;
+
+        if (!$error_message) {
+            if ($action == 'add') {
+                $sql = "INSERT INTO students (name, roll_no, class, email, phone, date_of_birth, address, photo)
+                        VALUES ('$name', '$roll_no', '$class', '$email', '$phone', '$date_of_birth', '$address', '$photo')";
+            } else {
+                $sql = "UPDATE students SET name='$name', roll_no='$roll_no', class='$class',
+                        email='$email', phone='$phone', date_of_birth='$date_of_birth',
+                        address='$address'" . ($photo ? ", photo='$photo'" : "") . " WHERE id=$student_id";
+            }
+
+            if (!mysqli_query($conn, $sql)) {
+                $error_message = 'Database error: ' . mysqli_error($conn);
+            } else {
+                header("Location: manage_students.php");
+                exit;
+            }
+        }
     } elseif ($action == 'delete') {
         $id = intval($_POST['id']);
         mysqli_query($conn, "DELETE FROM students WHERE id=$id");
@@ -61,6 +84,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit;
     }
 }
+
+$form_action = $edit_student ? 'update' : ($form_data['action'] ?? 'add');
+$form_title = $form_action === 'update' ? 'Edit Student' : 'Add New Student';
 ?>
 
 <?php include 'header.php'; ?>
@@ -70,24 +96,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <!-- Add/Edit Form -->
     <div class="form-card">
-        <h3 id="form-title"><?php echo $edit_student ? 'Edit Student' : 'Add New Student'; ?></h3>
+        <h3 id="form-title"><?php echo htmlspecialchars($form_title); ?></h3>
+        <?php if ($error_message): ?>
+            <div class="error-message"><?php echo htmlspecialchars($error_message); ?></div>
+        <?php endif; ?>
         <form action="manage_students.php" method="POST" enctype="multipart/form-data">
-            <input type="hidden" name="id" id="student_id" value="<?php echo $edit_student['id'] ?? ''; ?>">
-            <input type="hidden" name="action" id="form_action" value="<?php echo $edit_student ? 'update' : 'add'; ?>">
+            <input type="hidden" name="id" id="student_id" value="<?php echo htmlspecialchars($form_data['id'] ?? $edit_student['id'] ?? ''); ?>">
+            <input type="hidden" name="action" id="form_action" value="<?php echo htmlspecialchars($form_action); ?>">
 
             <div class="form-row">
-                <input type="text" name="name" id="name" placeholder="Full Name" value="<?php echo htmlspecialchars($edit_student['name'] ?? ''); ?>" required>
-                <input type="text" name="roll_no" id="roll_no" placeholder="Roll Number" value="<?php echo htmlspecialchars($edit_student['roll_no'] ?? ''); ?>" required>
+                <input type="text" name="name" id="name" placeholder="Full Name" value="<?php echo htmlspecialchars($form_data['name'] ?? $edit_student['name'] ?? ''); ?>" required>
+                <input type="text" name="roll_no" id="roll_no" placeholder="Roll Number" value="<?php echo htmlspecialchars($form_data['roll_no'] ?? $edit_student['roll_no'] ?? ''); ?>" required>
             </div>
             <div class="form-row">
-                <input type="text" name="class" id="class" placeholder="Class" value="<?php echo htmlspecialchars($edit_student['class'] ?? ''); ?>">
-                <input type="email" name="email" id="email" placeholder="Email Address" value="<?php echo htmlspecialchars($edit_student['email'] ?? ''); ?>">
+                <input type="text" name="class" id="class" placeholder="Class" value="<?php echo htmlspecialchars($form_data['class'] ?? $edit_student['class'] ?? ''); ?>">
+                <input type="email" name="email" id="email" placeholder="Email Address" value="<?php echo htmlspecialchars($form_data['email'] ?? $edit_student['email'] ?? ''); ?>">
             </div>
             <div class="form-row">
-                <input type="text" name="phone" id="phone" placeholder="Phone Number" value="<?php echo htmlspecialchars($edit_student['phone'] ?? ''); ?>">
-                <input type="date" name="date_of_birth" id="date_of_birth" value="<?php echo $edit_student['date_of_birth'] ?? ''; ?>">
+                <input type="text" name="phone" id="phone" placeholder="Phone Number" value="<?php echo htmlspecialchars($form_data['phone'] ?? $edit_student['phone'] ?? ''); ?>">
+                <input type="date" name="date_of_birth" id="date_of_birth" value="<?php echo htmlspecialchars($form_data['date_of_birth'] ?? $edit_student['date_of_birth'] ?? ''); ?>">
             </div>
-            <textarea name="address" id="address" placeholder="Address" rows="3"><?php echo htmlspecialchars($edit_student['address'] ?? ''); ?></textarea>
+            <textarea name="address" id="address" placeholder="Address" rows="3"><?php echo htmlspecialchars($form_data['address'] ?? $edit_student['address'] ?? ''); ?></textarea>
             <div class="form-row">
                 <label for="photo" style="display: block; margin-bottom: 5px; font-weight: 500;">Profile Photo</label>
                 <?php if ($edit_student && ($edit_student['photo'] ?? '')): ?>
@@ -100,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
 
             <div class="btn-row">
-                <button type="submit" class="btn-primary" id="submit-btn"><?php echo $edit_student ? 'Update Student' : 'Add Student'; ?></button>
+                <button type="submit" class="btn-primary" id="submit-btn"><?php echo $form_action === 'update' ? 'Update Student' : 'Add Student'; ?></button>
                 <button type="button" class="btn-secondary" onclick="clearForm()">Clear</button>
             </div>
         </form>
