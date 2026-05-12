@@ -154,12 +154,13 @@ $form_title = $form_action === 'update' ? 'Edit Student' : 'Add New Student';
             </thead>
             <tbody>
                 <?php
-                $result = mysqli_query($conn, "SELECT * FROM students ORDER BY id DESC");
+                $result = mysqli_query($conn, "SELECT * FROM students ORDER BY id ASC");
+                $serial = 0;
                 while ($row = mysqli_fetch_assoc($result)) {
-                    $id = $row['id'];
+                    $serial++;
                     $photo = ($row['photo'] ?? '') ? "<img src='{$row['photo']}' width='50' height='50' style='border-radius:50%;'>" : "No Photo";
                     echo "<tr>
-                        <td>{$row['id']}</td>
+                        <td>{$serial}</td>
                         <td>$photo</td>
                         <td>" . htmlspecialchars($row['name']) . "</td>
                         <td>" . htmlspecialchars($row['roll_no']) . "</td>
